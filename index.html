@@ -657,42 +657,50 @@
       <div class="page-header">
         <div>
           <h1 class="page-title">Market Tracker</h1>
-          <p class="page-sub">Live Indian stocks, ETFs and top SIP fund recommendations</p>
+          <p class="page-sub">Indian stocks, ETFs and top SIP fund recommendations</p>
         </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <input type="text" id="stock-search" placeholder="Search symbol e.g. RELIANCE.NS" style="width:220px"/>
-          <button class="btn btn-primary" onclick="searchStock()">Search</button>
-        </div>
+        <button class="btn btn-primary" onclick="loadStocks();loadSIPFunds();">↻ Refresh</button>
       </div>
 
-      <div id="search-result" style="margin-bottom:1rem"></div>
-
+      <!-- Indices -->
       <div class="glass-card">
-        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
-          <h2 class="card-title">Live Prices — Top Indian Stocks & ETFs</h2>
-          <button class="btn" style="font-size:12px;padding:5px 12px" onclick="loadStocks()">↻ Refresh</button>
+        <div class="card-header"><h2 class="card-title">Market Indices</h2></div>
+        <div id="indices-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;">
+          <p class="empty-hint">Loading indices...</p>
         </div>
-        <div id="stocks-list"><p class="empty-hint">Loading live prices...</p></div>
       </div>
 
+      <!-- Search -->
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">Search Stock</h2></div>
+        <div style="display:flex;gap:8px;margin-bottom:1rem;flex-wrap:wrap">
+          <input type="text" id="stock-search" placeholder="e.g. RELIANCE or TCS" style="flex:1;min-width:200px"/>
+          <button class="btn btn-primary" onclick="searchStock()">Search ↗</button>
+        </div>
+        <div id="search-result"></div>
+      </div>
+
+      <!-- Stocks list -->
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">Top Indian Stocks & ETFs</h2></div>
+        <div id="stocks-list"><p class="empty-hint">Loading prices...</p></div>
+      </div>
+
+      <!-- SIP Funds -->
       <div class="glass-card">
         <div class="card-header"><h2 class="card-title">Top SIP Fund Recommendations</h2></div>
-        <div id="sip-funds-list"><p class="empty-hint">Loading fund recommendations...</p></div>
+        <div id="sip-funds-list"><p class="empty-hint">Loading funds...</p></div>
       </div>
 
+      <!-- Email -->
       <div class="glass-card">
         <div class="card-header"><h2 class="card-title">📧 Email Reports</h2></div>
-        <p style="font-size:14px;color:var(--text-muted);margin-bottom:1rem">Send your monthly financial report to your registered email.</p>
+        <p style="font-size:14px;color:var(--text-muted);margin-bottom:1rem">Send your monthly financial report to your email.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btn-primary" onclick="sendEmailReport()">📨 Send Monthly Report</button>
           <button class="btn" onclick="sendTestEmail()">✉ Send Test Email</button>
         </div>
         <div id="email-status" style="margin-top:1rem;font-size:14px"></div>
-        <div style="margin-top:1rem;padding:1rem;background:var(--surface);border-radius:var(--radius-sm);font-size:13px;color:var(--text-muted)">
-          <strong style="color:var(--text)">Setup required:</strong> Add EMAIL_USER and EMAIL_PASS to your backend <code>.env</code> file.
-          Use a Gmail App Password (not your real password). 
-          <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:var(--accent)">Get App Password →</a>
-        </div>
       </div>
     </section>
 

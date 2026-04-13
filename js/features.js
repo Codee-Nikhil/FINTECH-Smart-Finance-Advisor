@@ -210,53 +210,98 @@ function renderSavingsRateChart(labels, rates) {
 // ══════════════════════════════════════════════════════════════════
 async function loadStocks() {
   const el = document.getElementById('stocks-list');
-  el.innerHTML = '<p class="empty-hint">Fetching live prices...</p>';
+  el.innerHTML = '<p class="empty-hint">Loading prices...</p>';
   try {
     const data = await StocksAPI.getPopular();
     el.innerHTML = data.stocks.map(s => {
-      if (s.status === 'error') return '';
       const up   = s.change_pct >= 0;
-      const abbr = s.symbol.split('.')[0].slice(0, 5);
+      const abbr = s.symbol.slice(0, 4);
       return '<div class="stock-row">' +
         '<div class="stock-icon">' + abbr + '</div>' +
-        '<div class="stock-info"><div class="stock-name">' + s.name + '</div><div class="stock-symbol">' + s.symbol + ' · ' + s.type + '</div></div>' +
-        '<div style="text-align:right"><div class="stock-price">₹' + (s.price ? s.price.toLocaleString('en-IN') : '—') + '</div>' +
-        '<span class="stock-change ' + (up ? 'up' : 'down') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(s.change_pct) + '%</span></div>' +
+        '<div class="stock-info">' +
+          '<div class="stock-name">' + s.name + '</div>' +
+          '<div class="stock-symbol">' + s.symbol + ' · ' + s.type + ' · ' + (s.sector || '') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<div class="stock-price">₹' + s.price.toLocaleString('en-IN') + '</div>' +
+          '<span class="stock-change ' + (up ? 'up' : 'down') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(s.change_pct) + '%</span>' +
+        '</div>' +
       '</div>';
-    }).join('') || '<p class="empty-hint">No data available.</p>';
-  } catch (err) { el.innerHTML = '<p class="empty-hint">Error: ' + err.message + '</p>'; }
+    }).join('');
+  } catch (err) {
+    el.innerHTML = '<p class="empty-hint">Error loading stocks: ' + err.message + '</p>';
+  }
+
+  // Also load indices
+  loadIndices();
+}
+
+async function loadIndices() {
+  const el = document.getElementById('indices-list');
+  if (!el) return;
+  try {
+    const data = await apiFetch('/stocks/indices');
+    el.innerHTML = data.indices.map(idx => {
+      const up = idx.change_pct >= 0;
+      return '<div style="background:var(--surface);border-radius:var(--radius-sm);padding:14px;text-align:center">' +
+        '<div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">' + idx.name + '</div>' +
+        '<div style="font-size:20px;font-weight:700;font-family:var(--font2)">' + idx.price.toLocaleString('en-IN') + '</div>' +
+        '<div class="stock-change ' + (up ? 'up' : 'down') + '" style="margin-top:4px;display:inline-block">' + (up ? '▲' : '▼') + ' ' + Math.abs(idx.change_pct) + '%</div>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    if (el) el.innerHTML = '<p class="empty-hint">Could not load indices</p>';
+  }
 }
 
 async function searchStock() {
-  const symbol = document.getElementById('stock-search').value.trim();
-  if (!symbol) return;
+  const input  = document.getElementById('stock-search');
+  const symbol = input.value.trim();
+  if (!symbol) { alert('Please enter a stock name or symbol'); return; }
   const el = document.getElementById('search-result');
-  el.innerHTML = '<p style="color:var(--text-muted);font-size:14px">Searching...</p>';
+  el.innerHTML = '<p style="color:var(--text-muted);font-size:14px">Searching for ' + symbol + '...</p>';
   try {
     const s  = await StocksAPI.search(symbol);
     const up = s.change_pct >= 0;
-    el.innerHTML = s.status === 'error'
-      ? '<div class="glass-card" style="padding:1rem;color:var(--red)">Not found: ' + s.error + '</div>'
-      : '<div class="glass-card" style="padding:1rem;display:flex;justify-content:space-between;align-items:center">' +
-          '<div><div style="font-size:16px;font-weight:600">' + s.symbol + '</div><div style="font-size:13px;color:var(--text-muted)">Live price</div></div>' +
-          '<div style="text-align:right"><div style="font-size:24px;font-weight:700">₹' + (s.price ? s.price.toLocaleString('en-IN') : '—') + '</div>' +
-          '<span class="stock-change ' + (up ? 'up' : 'down') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(s.change_pct) + '%</span></div>' +
-        '</div>';
-  } catch (err) { el.innerHTML = '<p style="color:var(--red);font-size:14px">Error: ' + err.message + '</p>'; }
+    el.innerHTML =
+      '<div style="background:var(--surface);border-radius:var(--radius);padding:1.25rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">' +
+        '<div>' +
+          '<div style="font-size:18px;font-weight:600">' + s.name + '</div>' +
+          '<div style="font-size:13px;color:var(--text-muted);margin-top:2px">' + s.symbol + ' · ' + s.type + (s.note ? ' · ' + s.note : '') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right">' +
+          '<div style="font-size:28px;font-weight:700;font-family:var(--font2)">₹' + s.price.toLocaleString('en-IN') + '</div>' +
+          '<span class="stock-change ' + (up ? 'up' : 'down') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(s.change_pct) + '% today</span>' +
+        '</div>' +
+      '</div>';
+  } catch (err) {
+    el.innerHTML = '<p style="color:var(--red);font-size:14px">Error: ' + err.message + '</p>';
+  }
 }
 
 async function loadSIPFunds() {
   const el = document.getElementById('sip-funds-list');
+  if (!el) return;
+  el.innerHTML = '<p class="empty-hint">Loading funds...</p>';
   try {
     const data = await StocksAPI.getSIPFunds();
     el.innerHTML = data.funds.map(f =>
       '<div class="sip-fund-card">' +
-        '<div><div class="sip-fund-name">' + f.name + ' ' + f.rating + '</div>' +
-        '<div class="sip-fund-meta">' + f.category + ' · Min SIP: ' + f.min_sip + ' · Risk: ' + f.risk + '</div></div>' +
-        '<div style="text-align:right"><div class="sip-fund-return">' + f.returns_3y + '</div>' +
-        '<div style="font-size:11px;color:var(--text-muted)">3Y returns</div></div>' +
-      '</div>').join('');
-  } catch (err) { el.innerHTML = '<p class="empty-hint">Error: ' + err.message + '</p>'; }
+        '<div style="flex:1">' +
+          '<div class="sip-fund-name">' + f.name + ' <span style="color:var(--amber)">' + f.rating + '</span></div>' +
+          '<div class="sip-fund-meta">' + f.category + ' · AUM: ' + (f.aum || '—') + ' · Min SIP: ' + f.min_sip + '</div>' +
+          '<div class="sip-fund-meta" style="margin-top:4px">Risk: <span style="color:' + (f.risk === 'High' ? 'var(--red)' : f.risk === 'Low' ? 'var(--green)' : 'var(--amber)') + '">' + f.risk + '</span></div>' +
+        '</div>' +
+        '<div style="text-align:right;flex-shrink:0">' +
+          '<div class="sip-fund-return">' + f.returns_3y + '</div>' +
+          '<div style="font-size:11px;color:var(--text-muted)">3Y returns</div>' +
+          '<div style="font-size:11px;color:var(--text-muted);margin-top:2px">1Y: ' + (f.returns_1y || '—') + ' · 5Y: ' + (f.returns_5y || '—') + '</div>' +
+        '</div>' +
+      '</div>'
+    ).join('');
+  } catch (err) {
+    el.innerHTML = '<p class="empty-hint">Error: ' + err.message + '</p>';
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════
