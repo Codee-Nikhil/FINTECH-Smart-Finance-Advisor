@@ -335,17 +335,30 @@ async function downloadPDF() {
   const month = document.getElementById('month') ? document.getElementById('month').value : new Date().toLocaleString('en', { month: 'long' });
   const year  = new Date().getFullYear();
   const token = getToken();
-  const url   = 'http://127.0.0.1:5000/api/pdf/report?month=' + month + '&year=' + year;
+
+  // Use same base URL as API (works both locally and on Railway)
+  const baseUrl = API_BASE.replace('/api', '');
+  const url     = baseUrl + '/api/pdf/report?month=' + month + '&year=' + year;
+
   try {
-    const response = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
-    if (!response.ok) throw new Error('Failed to generate PDF');
+    const response = await fetch(url, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to generate PDF');
+    }
     const blob = await response.blob();
     const link = document.createElement('a');
-    link.href  = URL.createObjectURL(blob);
+    link.href     = URL.createObjectURL(blob);
     link.download = 'FinTech_Report_' + month + '_' + year + '.pdf';
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
-  } catch (err) { alert('PDF download failed: ' + err.message); }
+  } catch (err) {
+    alert('PDF download failed: ' + err.message);
+  }
 }
 
 
