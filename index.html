@@ -382,46 +382,87 @@
 
     <!-- ═══════════ AI ADVISOR ═══════════ -->
     <section class="tab-section" id="tab-advisor">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">AI Finance Advisor</h1>
-          <p class="page-sub">Powered by Claude AI — personalized advice based on your data</p>
-        </div>
-        <div class="ai-status"><span class="status-dot"></span> AI Online</div>
-      </div>
+      <div class="chatbot-container">
 
-      <div class="chat-layout">
-        <div class="glass-card chat-panel">
-          <div id="chat-messages" class="chat-messages">
-            <div class="chat-msg ai">
-              <div class="chat-avatar ai-avatar">✦</div>
-              <div class="chat-bubble">
-                <p>Namaste! I'm your personal FinTech AI Advisor. 🙏</p>
-                <p style="margin-top:8px">I can see your financial data and give you <strong>personalized advice</strong> tailored for India. Ask me about:</p>
-                <ul style="margin-top:8px;padding-left:1.2rem;line-height:1.8">
-                  <li>SIP, PPF, FD, NPS investments</li>
-                  <li>How to reduce your expenses</li>
-                  <li>Budget planning & savings tips</li>
-                  <li>Tax saving strategies</li>
-                  <li>Emergency fund planning</li>
-                </ul>
+        <!-- Chatbot Header -->
+        <div class="chatbot-header">
+          <div class="chatbot-header-left">
+            <div class="chatbot-avatar-large">
+              <span>₹</span>
+              <div class="chatbot-online-dot"></div>
+            </div>
+            <div>
+              <div class="chatbot-name">FinTech AI Advisor</div>
+              <div class="chatbot-status"><span class="chatbot-status-dot"></span> Online · Powered by Gemini AI</div>
+            </div>
+          </div>
+          <div class="chatbot-header-right">
+            <button class="chatbot-icon-btn" onclick="clearChat()" title="Clear chat">🗑</button>
+            <button class="chatbot-icon-btn" onclick="exportChat()" title="Export chat">⬇</button>
+          </div>
+        </div>
+
+        <!-- Main Chat Area -->
+        <div class="chatbot-body">
+
+          <!-- Sidebar -->
+          <div class="chatbot-sidebar">
+            <div class="chatbot-sidebar-section">
+              <div class="chatbot-sidebar-title">Your Summary</div>
+              <div id="ai-summary" class="chatbot-summary"></div>
+            </div>
+            <div class="chatbot-sidebar-section">
+              <div class="chatbot-sidebar-title">Quick Questions</div>
+              <div id="quick-qs" class="chatbot-quick-qs"></div>
+            </div>
+            <div class="chatbot-sidebar-section">
+              <div class="chatbot-sidebar-title">Topics</div>
+              <div class="chatbot-topics">
+                <span class="chatbot-topic" onclick="askTopic('How to invest in SIP?')">💰 SIP</span>
+                <span class="chatbot-topic" onclick="askTopic('How to save tax under 80C?')">📋 Tax</span>
+                <span class="chatbot-topic" onclick="askTopic('How to build emergency fund?')">🛡 Emergency</span>
+                <span class="chatbot-topic" onclick="askTopic('What is PPF and how to invest?')">🏦 PPF</span>
+                <span class="chatbot-topic" onclick="askTopic('How to reduce my monthly expenses?')">✂ Savings</span>
+                <span class="chatbot-topic" onclick="askTopic('Explain ELSS mutual funds')">📈 ELSS</span>
+                <span class="chatbot-topic" onclick="askTopic('What is NPS and its benefits?')">🎯 NPS</span>
+                <span class="chatbot-topic" onclick="askTopic('How to plan for retirement?')">🏖 Retire</span>
               </div>
             </div>
           </div>
-          <div class="chat-input-area">
-            <input type="text" id="chat-input" class="chat-input" placeholder="Ask me anything about your finances..." />
-            <button class="btn-send" onclick="sendChat(event)">↗</button>
-          </div>
-        </div>
 
-        <div class="chat-sidebar">
-          <div class="glass-card">
-            <div class="card-header"><h2 class="card-title">Quick Questions</h2></div>
-            <div class="quick-questions" id="quick-qs"></div>
-          </div>
-          <div class="glass-card" id="financial-summary-card">
-            <div class="card-header"><h2 class="card-title">Your Summary</h2></div>
-            <div id="ai-summary"></div>
+          <!-- Chat Messages -->
+          <div class="chatbot-messages-wrap">
+            <div id="chat-messages" class="chatbot-messages">
+              <!-- Welcome message -->
+              <div class="chatbot-date-divider">Today</div>
+              <div class="chatbot-msg-row ai-row">
+                <div class="chatbot-msg-avatar">₹</div>
+                <div class="chatbot-msg-content">
+                  <div class="chatbot-msg-name">FinTech AI <span class="chatbot-msg-time" id="welcome-time"></span></div>
+                  <div class="chatbot-msg-bubble ai-bubble">
+                    <p>Namaste! 🙏 I'm your personal <strong>FinTech AI Finance Advisor</strong>.</p>
+                    <p style="margin-top:8px">I have access to your financial profile and can give you <strong>personalized advice</strong> based on your actual income, expenses and goals.</p>
+                    <div class="chatbot-suggestion-chips">
+                      <span class="chip" onclick="askTopic('How should I invest my savings?')">How to invest my savings?</span>
+                      <span class="chip" onclick="askTopic('Am I saving enough?')">Am I saving enough?</span>
+                      <span class="chip" onclick="askTopic('Best tax saving options for me?')">Tax saving options?</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Typing area -->
+            <div class="chatbot-input-wrap">
+              <div class="chatbot-input-box">
+                <button class="chatbot-attach-btn" onclick="askTopic('Give me a complete financial health report')" title="Get financial report">📊</button>
+                <input type="text" id="chat-input" class="chatbot-input" placeholder="Ask me anything about your finances..."/>
+                <button class="chatbot-send-btn" onclick="sendChat(event)" id="send-btn">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+              </div>
+              <div class="chatbot-input-hint">Press Enter to send · FinTech AI may make mistakes — verify important financial decisions</div>
+            </div>
           </div>
         </div>
       </div>

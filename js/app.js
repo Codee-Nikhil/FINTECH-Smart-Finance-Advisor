@@ -69,6 +69,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Set welcome message time
+  const wt = document.getElementById('welcome-time');
+  if (wt) wt.textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+
   console.log('%c FinTech ✦ Backend Connected ', 'background:#7c6ff7;color:#fff;font-size:14px;padding:4px 10px;border-radius:4px');
 });
 
@@ -100,8 +104,8 @@ async function loadChatHistory() {
     const data   = await AdvisorAPI.getHistory();
     const chatEl = document.getElementById('chat-messages');
     if (data.history && data.history.length > 0) {
-      chatEl.innerHTML = '';
-      data.history.forEach(log => appendMessage(log.role === 'assistant' ? 'ai' : 'user', log.message));
+      chatEl.innerHTML = '<div class="chatbot-date-divider">Previous conversation</div>';
+      data.history.forEach(log => appendMessage(log.role === 'assistant' ? 'ai' : 'user', simpleMarkdown(log.message)));
     }
   } catch (err) { console.warn('Chat load:', err.message); }
 }
@@ -171,18 +175,86 @@ async function removeGoal(i) {
 }
 
 // Chat
-async function sendChat() {
-  const input = document.getElementById('chat-input');
-  const msg   = input.value.trim();
+function getTime() {
+  return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+}
+
+function appendMessage(role, html) {
+  const chatEl   = document.getElementById('chat-messages');
+  const isAI     = role === 'ai';
+  const userName = state.userName ? state.userName[0].toUpperCase() : 'U';
+  const div      = document.createElement('div');
+  div.className  = 'chatbot-msg-row ' + (isAI ? 'ai-row' : 'user-row');
+  div.innerHTML  =
+    '<div class="chatbot-msg-avatar">' + (isAI ? '₹' : userName) + '</div>' +
+    '<div class="chatbot-msg-content">' +
+      '<div class="chatbot-msg-name">' +
+        (isAI ? 'FinTech AI' : (state.userName || 'You')) +
+        '<span class="chatbot-msg-time">' + getTime() + '</span>' +
+      '</div>' +
+      '<div class="chatbot-msg-bubble ' + (isAI ? 'ai-bubble' : 'user-bubble') + '">' + html + '</div>' +
+    '</div>';
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+  return div;
+}
+
+async function sendChat(e) {
+  if (e) { e.preventDefault(); e.stopPropagation(); }
+  const input   = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('send-btn');
+  const msg     = input.value.trim();
   if (!msg) return;
-  input.value = '';
+
+  input.value      = '';
+  sendBtn.disabled = true;
+
   appendMessage('user', msg);
-  const typingDiv = appendMessage('ai', '<div class="typing-dots"><span></span><span></span><span></span></div>');
+
+  // Typing indicator
+  const typingDiv = appendMessage('ai',
+    '<div class="typing-bubble"><span></span><span></span><span></span></div>');
+
   try {
-    const data = await AdvisorAPI.chat(msg);
-    typingDiv.querySelector('.chat-bubble').innerHTML = simpleMarkdown(data.reply);
+    const data  = await AdvisorAPI.chat(msg);
+    typingDiv.querySelector('.chatbot-msg-bubble').innerHTML = simpleMarkdown(data.reply);
   } catch (err) {
-    typingDiv.querySelector('.chat-bubble').textContent = 'Error: ' + err.message;
+    typingDiv.querySelector('.chatbot-msg-bubble').innerHTML =
+      '<span style="color:var(--red)">Sorry, I could not connect. Please try again.</span>';
   }
+
+  sendBtn.disabled = false;
+  input.focus();
   document.getElementById('chat-messages').scrollTop = 99999;
+}
+
+function askTopic(question) {
+  const input = document.getElementById('chat-input');
+  input.value = question;
+  sendChat();
+}
+
+function clearChat() {
+  if (!confirm('Clear all chat history?')) return;
+  const chatEl = document.getElementById('chat-messages');
+  chatEl.innerHTML = '<div class="chatbot-date-divider">Today</div>';
+  AdvisorAPI.clearHistory().catch(() => {});
+  appendMessage('ai', 'Chat cleared! How can I help you with your finances today? 😊');
+}
+
+function exportChat() {
+  const msgs    = document.querySelectorAll('.chatbot-msg-bubble');
+  const names   = document.querySelectorAll('.chatbot-msg-name');
+  let text      = 'FinTech AI Advisor — Chat Export\n';
+  text         += '================================\n\n';
+  msgs.forEach((m, i) => {
+    const name = names[i] ? names[i].textContent.trim() : '';
+    text += name + ':\n' + m.innerText + '\n\n';
+  });
+  const blob = new Blob([text], { type: 'text/plain' });
+  const link = document.createElement('a');
+  link.href  = URL.createObjectURL(blob);
+  link.download = 'FinTech_Chat_' + new Date().toLocaleDateString('en-IN').replace(/\//g, '-') + '.txt';
+  link.click();
+  URL.revokeObjectURL(link.href);
 }

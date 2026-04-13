@@ -222,19 +222,20 @@ function removeGoal(i) {
 
 function updateAISummary() {
   const el = document.getElementById('ai-summary');
+  if (!el) return;
   const rows = [
-    { label: 'Income',     val: fmt(state.income),      color: 'var(--blue)' },
-    { label: 'Expenses',   val: fmt(getTotalExpenses()), color: 'var(--red)' },
-    { label: 'Savings',    val: fmt(getSavings()),       color: getSavings() >= 0 ? 'var(--green)' : 'var(--red)' },
-    { label: 'Save Rate',  val: getSavingsRate() + '%',  color: getSavingsRate() >= 20 ? 'var(--green)' : 'var(--amber)' },
-    { label: 'Goals',      val: state.goals.length + ' active', color: 'var(--accent)' },
-    { label: 'Health',     val: getHealthScore() + '/100', color: 'var(--accent)' },
+    { label: 'Income',    val: fmt(state.income),       color: 'var(--blue)' },
+    { label: 'Expenses',  val: fmt(getTotalExpenses()),  color: 'var(--red)' },
+    { label: 'Savings',   val: fmt(getSavings()),        color: getSavings() >= 0 ? 'var(--green)' : 'var(--red)' },
+    { label: 'Rate',      val: getSavingsRate() + '%',   color: getSavingsRate() >= 20 ? 'var(--green)' : 'var(--amber)' },
+    { label: 'Goals',     val: state.goals.length + ' active', color: 'var(--accent)' },
+    { label: 'Score',     val: getHealthScore() + '/100', color: 'var(--accent)' },
   ];
   el.innerHTML = rows.map(r =>
-    `<div class="ai-summary-row">
-      <span class="ai-summary-label">${r.label}</span>
-      <span class="ai-summary-val" style="color:${r.color}">${r.val}</span>
-    </div>`
+    '<div class="ai-summary-row">' +
+      '<span class="ai-summary-label">' + r.label + '</span>' +
+      '<span class="ai-summary-val" style="color:' + r.color + '">' + r.val + '</span>' +
+    '</div>'
   ).join('');
 }
 
