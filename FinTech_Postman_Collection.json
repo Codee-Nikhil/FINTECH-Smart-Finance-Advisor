@@ -1,0 +1,432 @@
+{
+  "info": {
+    "name": "FinTech API",
+    "description": "Complete API collection for FinTech Smart Finance Advisor — Final Year Project",
+    "version": "2.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:5000/api" },
+    { "key": "token",    "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/register",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nikhil Tiwari\",\n  \"email\": \"nikhil@example.com\",\n  \"password\": \"password123\",\n  \"city_type\": \"metro\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var res = pm.response.json();",
+                  "if (res.access_token) {",
+                  "  pm.collectionVariables.set('token', res.access_token);",
+                  "  pm.test('Login successful', () => pm.response.to.have.status(200));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/auth/login",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nikhil@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/auth/profile",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/auth/profile",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nikhil Tiwari Updated\",\n  \"city_type\": \"tier2\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Budget",
+      "item": [
+        {
+          "name": "Get Budget (Current Month)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/budget/?month=April&year=2026",
+              "query": [
+                { "key": "month", "value": "April" },
+                { "key": "year",  "value": "2026" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Update Income",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/budget/income",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"income\": 75000,\n  \"month\": \"April\",\n  \"year\": 2026\n}"
+            }
+          }
+        },
+        {
+          "name": "Save Full Budget",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/budget/save",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"income\": 75000,\n  \"month\": \"April\",\n  \"year\": 2026,\n  \"expenses\": [\n    { \"category\": \"Rent / Housing\",   \"actual\": 20000, \"budget_amt\": 22000 },\n    { \"category\": \"Food & Groceries\", \"actual\": 8000,  \"budget_amt\": 10000 },\n    { \"category\": \"Transport\",        \"actual\": 3000,  \"budget_amt\": 4000 },\n    { \"category\": \"Entertainment\",    \"actual\": 5000,  \"budget_amt\": 3000 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Custom Category",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/budget/expense",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Gym Membership\",\n  \"actual\": 1500,\n  \"budget_amt\": 2000,\n  \"month\": \"April\",\n  \"year\": 2026\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Budget History",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/budget/history",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Goals",
+      "item": [
+        {
+          "name": "Get All Goals",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/goals/",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Add Goal",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/goals/",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Emergency Fund\",\n  \"target\": 300000,\n  \"saved\": 50000,\n  \"goal_type\": \"emergency\",\n  \"target_date\": \"December 2025\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Goal",
+          "request": {
+            "method": "PUT",
+            "url": "{{base_url}}/goals/1",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"saved\": 75000\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Goal",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/goals/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Summary",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/dashboard/summary?month=April&year=2026",
+              "query": [
+                { "key": "month", "value": "April" },
+                { "key": "year",  "value": "2026" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tax Calculator",
+      "item": [
+        {
+          "name": "Calculate Tax",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/tax/calculate",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"gross_salary\": 1200000,\n  \"other_income\": 50000,\n  \"sec_80c\": 150000,\n  \"sec_80d\": 25000,\n  \"sec_80d_parents\": 25000,\n  \"hra_exemption\": 120000,\n  \"home_loan_int\": 150000,\n  \"nps_80ccd\": 50000\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Net Worth",
+      "item": [
+        {
+          "name": "Get Net Worth",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/networth/",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Add Asset",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/networth/",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Mutual Funds\",\n  \"entry_type\": \"asset\",\n  \"amount\": 150000\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Liability",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/networth/",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Education Loan\",\n  \"entry_type\": \"liability\",\n  \"amount\": 200000\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Entry",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/networth/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Stocks & MF",
+      "item": [
+        {
+          "name": "Get Portfolio",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/stocks/portfolio",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Add Stock Holding",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/stocks/portfolio",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"symbol\": \"TCS.NS\",\n  \"quantity\": 10,\n  \"buy_price\": 3500,\n  \"asset_type\": \"stock\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Stock Quote",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/stocks/quote/RELIANCE.NS",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Get Popular Indian Stocks",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/stocks/popular",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Delete Holding",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/stocks/portfolio/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Advisor",
+      "item": [
+        {
+          "name": "Chat with AI",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/advisor/chat",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"How should I invest my monthly savings of Rs.15000?\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Chat History",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/advisor/history",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        },
+        {
+          "name": "Clear Chat History",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/advisor/history",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Email Notifications",
+      "item": [
+        {
+          "name": "Send Monthly Report Email",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/email/send-report",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"month\": \"April\",\n  \"year\": 2026\n}"
+            }
+          }
+        },
+        {
+          "name": "Send Budget Alert Email",
+          "request": {
+            "method": "POST",
+            "url": "{{base_url}}/email/budget-alert",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type",  "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Entertainment\",\n  \"spent\": 5000,\n  \"budget\": 3000\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PDF Report",
+      "item": [
+        {
+          "name": "Download PDF Report",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/pdf/report?month=April&year=2026",
+              "query": [
+                { "key": "month", "value": "April" },
+                { "key": "year",  "value": "2026" }
+              ]
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FinTech — Smart Finance Advisor</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">₹</div>
+      <span class="logo-text">FinTech</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-tab="dashboard" type="button">
+        <span class="nav-icon">◈</span><span>Dashboard</span>
+      </button>
+      <button class="nav-item" data-tab="budget" type="button">
+        <span class="nav-icon">◎</span><span>Budget</span>
+      </button>
+      <button class="nav-item" data-tab="goals" type="button">
+        <span class="nav-icon">◉</span><span>Goals</span>
+      </button>
+      <button class="nav-item" data-tab="investments" type="button">
+        <span class="nav-icon">◇</span><span>Investments</span>
+      </button>
+      <button class="nav-item" data-tab="advisor" type="button">
+        <span class="nav-icon">✦</span><span>AI Advisor</span>
+      </button>
+      <button class="nav-item" data-tab="networth" type="button">
+        <span class="nav-icon">◆</span><span>Net Worth</span>
+      </button>
+      <button class="nav-item" data-tab="tax" type="button">
+        <span class="nav-icon">◐</span><span>Tax Calculator</span>
+      </button>
+      <button class="nav-item" data-tab="trends" type="button">
+        <span class="nav-icon">▲</span><span>Trends</span>
+      </button>
+      <button class="nav-item" data-tab="stocks" type="button">
+        <span class="nav-icon">◈</span><span>Stocks & MF</span>
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="profile-pill">
+        <div class="avatar">U</div>
+        <div class="profile-info">
+          <span class="profile-name" id="sidebar-name">User</span>
+          <span class="profile-label">Personal Account</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MOBILE TOPBAR -->
+  <header class="mobile-header">
+    <button class="hamburger" onclick="toggleSidebar()">☰</button>
+    <span class="mobile-logo">FinTech ₹</span>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- ═══════════ DASHBOARD ═══════════ -->
+    <section class="tab-section active" id="tab-dashboard">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-sub" id="dash-greeting">Good morning! Here's your financial overview.</p>
+        </div>
+        <div class="header-badge" id="health-badge">— Health Score</div>
+      </div>
+
+      <!-- METRIC CARDS -->
+      <div class="metrics-grid">
+        <div class="metric-card accent-blue">
+          <div class="metric-top">
+            <span class="metric-label">Monthly Income</span>
+            <span class="metric-icon">↑</span>
+          </div>
+          <div class="metric-value" id="m-income">₹0</div>
+          <div class="metric-foot">This month</div>
+        </div>
+        <div class="metric-card accent-red">
+          <div class="metric-top">
+            <span class="metric-label">Total Expenses</span>
+            <span class="metric-icon">↓</span>
+          </div>
+          <div class="metric-value" id="m-expenses">₹0</div>
+          <div class="metric-foot" id="m-exp-pct">—% of income</div>
+        </div>
+        <div class="metric-card accent-green">
+          <div class="metric-top">
+            <span class="metric-label">Monthly Savings</span>
+            <span class="metric-icon">★</span>
+          </div>
+          <div class="metric-value" id="m-savings">₹0</div>
+          <div class="metric-foot" id="m-save-status">Enter data to start</div>
+        </div>
+        <div class="metric-card accent-amber">
+          <div class="metric-top">
+            <span class="metric-label">Savings Rate</span>
+            <span class="metric-icon">%</span>
+          </div>
+          <div class="metric-value" id="m-rate">0%</div>
+          <div class="metric-foot" id="m-rate-status">Target: 20%+</div>
+        </div>
+      </div>
+
+      <!-- CHARTS ROW -->
+      <div class="charts-row">
+        <div class="glass-card chart-card">
+          <div class="card-header">
+            <h2 class="card-title">Expense Breakdown</h2>
+          </div>
+          <div class="donut-wrap">
+            <canvas id="donutChart"></canvas>
+            <div class="donut-center" id="donut-center">
+              <span class="donut-total" id="donut-total">₹0</span>
+              <span class="donut-label">total spent</span>
+            </div>
+          </div>
+          <div id="donut-legend" class="chart-legend"></div>
+        </div>
+
+        <div class="glass-card chart-card">
+          <div class="card-header">
+            <h2 class="card-title">Budget vs Actual</h2>
+          </div>
+          <div id="budget-bars" class="budget-bars-wrap">
+            <p class="empty-hint">Set budgets in the Budget tab.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSIGHTS -->
+      <div class="glass-card">
+        <div class="card-header">
+          <h2 class="card-title">✦ Smart Insights</h2>
+        </div>
+        <div id="insights-list" class="insights-list">
+          <div class="insight-item">
+            <div class="insight-icon icon-blue">i</div>
+            <div>
+              <div class="insight-title">Welcome to FinTech!</div>
+              <div class="insight-desc">Head to the Budget tab to enter your income and expenses. Your personalized insights will appear here.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ BUDGET ═══════════ -->
+    <section class="tab-section" id="tab-budget">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Budget Planner</h1>
+          <p class="page-sub">Track your income and spending categories</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Income & Profile</h2></div>
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" id="user-name" placeholder="e.g. Aarav Singh" oninput="updateName()"/>
+          </div>
+          <div class="form-group">
+            <label>Monthly Income (₹)</label>
+            <input type="number" id="income" placeholder="e.g. 50000" oninput="updateAll()"/>
+          </div>
+          <div class="form-group">
+            <label>City Type</label>
+            <select id="city" onchange="updateAll()">
+              <option value="metro">Metro city (Delhi, Mumbai, Bangalore, Chennai)</option>
+              <option value="tier2">Tier-2 city (Pune, Jaipur, Lucknow, etc.)</option>
+              <option value="small">Small town / Rural</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Month</label>
+            <select id="month" onchange="updateAll()">
+              <option>January</option><option>February</option><option>March</option>
+              <option>April</option><option>May</option><option>June</option>
+              <option>July</option><option>August</option><option>September</option>
+              <option>October</option><option>November</option><option selected>December</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Add Custom Category</h2></div>
+          <div class="form-group">
+            <label>Category Name</label>
+            <input type="text" id="new-cat" placeholder="e.g. Gym Membership"/>
+          </div>
+          <div class="form-group">
+            <label>Monthly Amount (₹)</label>
+            <input type="number" id="new-amt" placeholder="e.g. 2000"/>
+          </div>
+          <div class="form-group">
+            <label>Budget Limit (₹)</label>
+            <input type="number" id="new-budget" placeholder="e.g. 2500"/>
+          </div>
+          <button class="btn btn-primary" onclick="addCategory()">+ Add Category</button>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">Monthly Expenses</h2></div>
+        <div class="expense-table-wrap">
+          <table class="expense-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Actual Spending (₹)</th>
+                <th>Budget Limit (₹)</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="expense-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ GOALS ═══════════ -->
+    <section class="tab-section" id="tab-goals">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Financial Goals</h1>
+          <p class="page-sub">Set targets and track your progress</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Add New Goal</h2></div>
+          <div class="form-group">
+            <label>Goal Name</label>
+            <input type="text" id="goal-name" placeholder="e.g. Emergency Fund"/>
+          </div>
+          <div class="form-group">
+            <label>Target Amount (₹)</label>
+            <input type="number" id="goal-target" placeholder="e.g. 100000"/>
+          </div>
+          <div class="form-group">
+            <label>Amount Already Saved (₹)</label>
+            <input type="number" id="goal-saved" placeholder="e.g. 20000"/>
+          </div>
+          <div class="form-group">
+            <label>Target Date</label>
+            <input type="text" id="goal-date" placeholder="e.g. December 2025"/>
+          </div>
+          <div class="form-group">
+            <label>Goal Type</label>
+            <select id="goal-type">
+              <option value="emergency">Emergency Fund</option>
+              <option value="investment">Investment</option>
+              <option value="travel">Travel</option>
+              <option value="education">Education</option>
+              <option value="vehicle">Vehicle</option>
+              <option value="home">Home / Property</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addGoal()">★ Add Goal</button>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">12-Month Savings Projection</h2></div>
+          <div style="position:relative;height:260px;">
+            <canvas id="projChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">Your Goals</h2></div>
+        <div id="goals-list">
+          <p class="empty-hint">No goals added yet. Add your first goal above!</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ INVESTMENTS ═══════════ -->
+    <section class="tab-section" id="tab-investments">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Investment Planner</h1>
+          <p class="page-sub">Explore investment options suited for India</p>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">SIP Calculator</h2></div>
+        <div class="sip-grid">
+          <div class="form-group">
+            <label>Monthly SIP Amount (₹)</label>
+            <input type="number" id="sip-amount" value="5000" oninput="calcSIP()"/>
+          </div>
+          <div class="form-group">
+            <label>Expected Annual Return (%)</label>
+            <input type="number" id="sip-rate" value="12" oninput="calcSIP()"/>
+          </div>
+          <div class="form-group">
+            <label>Investment Period (Years)</label>
+            <input type="number" id="sip-years" value="10" oninput="calcSIP()"/>
+          </div>
+        </div>
+        <div class="sip-results" id="sip-results"></div>
+        <div style="position:relative;height:240px;margin-top:1rem;">
+          <canvas id="sipChart"></canvas>
+        </div>
+      </div>
+
+      <div class="invest-options-grid">
+        <div class="invest-card">
+          <div class="invest-icon" style="background:#e6f1fb;color:#185FA5">SIP</div>
+          <h3>Mutual Fund SIP</h3>
+          <p>Start with ₹500/month. Long term wealth creation via equity or debt funds.</p>
+          <div class="invest-tags">
+            <span class="tag tag-green">8–15% returns</span>
+            <span class="tag tag-blue">Market linked</span>
+          </div>
+        </div>
+        <div class="invest-card">
+          <div class="invest-icon" style="background:#eaf3de;color:#3B6D11">PPF</div>
+          <h3>Public Provident Fund</h3>
+          <p>Government-backed, 15-year lock-in. Tax-free returns under Section 80C.</p>
+          <div class="invest-tags">
+            <span class="tag tag-green">~7.1% returns</span>
+            <span class="tag tag-amber">Tax free</span>
+          </div>
+        </div>
+        <div class="invest-card">
+          <div class="invest-icon" style="background:#faeeda;color:#854F0B">FD</div>
+          <h3>Fixed Deposit</h3>
+          <p>Safe, guaranteed returns. Ideal for emergency funds or short-term goals.</p>
+          <div class="invest-tags">
+            <span class="tag tag-amber">6–7.5% returns</span>
+            <span class="tag tag-blue">Low risk</span>
+          </div>
+        </div>
+        <div class="invest-card">
+          <div class="invest-icon" style="background:#f0f0fe;color:#534AB7">NPS</div>
+          <h3>National Pension System</h3>
+          <p>Retirement planning with tax benefits under 80CCD. Low-cost fund management.</p>
+          <div class="invest-tags">
+            <span class="tag tag-green">9–12% returns</span>
+            <span class="tag tag-amber">Tax benefit</span>
+          </div>
+        </div>
+        <div class="invest-card">
+          <div class="invest-icon" style="background:#fbeaf0;color:#993556">ELSS</div>
+          <h3>ELSS Funds</h3>
+          <p>Equity Linked Savings Scheme. 3-year lock-in with highest tax-saving returns.</p>
+          <div class="invest-tags">
+            <span class="tag tag-green">10–15% returns</span>
+            <span class="tag tag-blue">80C benefit</span>
+          </div>
+        </div>
+        <div class="invest-card">
+          <div class="invest-icon" style="background:#e1f5ee;color:#0F6E56">RD</div>
+          <h3>Recurring Deposit</h3>
+          <p>Fixed monthly deposits in a bank. Great for building a disciplined saving habit.</p>
+          <div class="invest-tags">
+            <span class="tag tag-amber">5.5–7% returns</span>
+            <span class="tag tag-blue">Safe</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ AI ADVISOR ═══════════ -->
+    <section class="tab-section" id="tab-advisor">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">AI Finance Advisor</h1>
+          <p class="page-sub">Powered by Claude AI — personalized advice based on your data</p>
+        </div>
+        <div class="ai-status"><span class="status-dot"></span> AI Online</div>
+      </div>
+
+      <div class="chat-layout">
+        <div class="glass-card chat-panel">
+          <div id="chat-messages" class="chat-messages">
+            <div class="chat-msg ai">
+              <div class="chat-avatar ai-avatar">✦</div>
+              <div class="chat-bubble">
+                <p>Namaste! I'm your personal FinTech AI Advisor. 🙏</p>
+                <p style="margin-top:8px">I can see your financial data and give you <strong>personalized advice</strong> tailored for India. Ask me about:</p>
+                <ul style="margin-top:8px;padding-left:1.2rem;line-height:1.8">
+                  <li>SIP, PPF, FD, NPS investments</li>
+                  <li>How to reduce your expenses</li>
+                  <li>Budget planning & savings tips</li>
+                  <li>Tax saving strategies</li>
+                  <li>Emergency fund planning</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Ask me anything about your finances..." />
+            <button class="btn-send" onclick="sendChat(event)">↗</button>
+          </div>
+        </div>
+
+        <div class="chat-sidebar">
+          <div class="glass-card">
+            <div class="card-header"><h2 class="card-title">Quick Questions</h2></div>
+            <div class="quick-questions" id="quick-qs"></div>
+          </div>
+          <div class="glass-card" id="financial-summary-card">
+            <div class="card-header"><h2 class="card-title">Your Summary</h2></div>
+            <div id="ai-summary"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════ NET WORTH ═══════════ -->
+    <section class="tab-section" id="tab-networth">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Net Worth Tracker</h1>
+          <p class="page-sub">Assets minus liabilities — your true financial position</p>
+        </div>
+        <button class="btn btn-primary" onclick="downloadPDF()">⬇ Download PDF Report</button>
+      </div>
+
+      <div class="metrics-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric-card accent-green">
+          <div class="metric-top"><span class="metric-label">Total Assets</span><span class="metric-icon">↑</span></div>
+          <div class="metric-value" id="nw-assets">₹0</div>
+          <div class="metric-foot">Everything you own</div>
+        </div>
+        <div class="metric-card accent-red">
+          <div class="metric-top"><span class="metric-label">Total Liabilities</span><span class="metric-icon">↓</span></div>
+          <div class="metric-value" id="nw-liabilities">₹0</div>
+          <div class="metric-foot">Everything you owe</div>
+        </div>
+        <div class="metric-card accent-blue">
+          <div class="metric-top"><span class="metric-label">Net Worth</span><span class="metric-icon">★</span></div>
+          <div class="metric-value" id="nw-total">₹0</div>
+          <div class="metric-foot" id="nw-status">Assets - Liabilities</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Add Asset</h2></div>
+          <div class="form-group"><label>Asset Name</label><input type="text" id="asset-name" placeholder="e.g. Bank Savings, Mutual Funds"/></div>
+          <div class="form-group"><label>Value (₹)</label><input type="number" id="asset-amount" placeholder="e.g. 50000"/></div>
+          <button class="btn btn-primary" onclick="addNetWorthEntry('asset')">+ Add Asset</button>
+        </div>
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Add Liability</h2></div>
+          <div class="form-group"><label>Liability Name</label><input type="text" id="liability-name" placeholder="e.g. Home Loan, Credit Card"/></div>
+          <div class="form-group"><label>Amount Owed (₹)</label><input type="number" id="liability-amount" placeholder="e.g. 200000"/></div>
+          <button class="btn btn-danger" onclick="addNetWorthEntry('liability')">+ Add Liability</button>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Assets</h2></div>
+          <div id="assets-list"><p class="empty-hint">No assets added yet.</p></div>
+        </div>
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Liabilities</h2></div>
+          <div id="liabilities-list"><p class="empty-hint">No liabilities added yet.</p></div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">Net Worth Breakdown</h2></div>
+        <div style="position:relative;height:260px;"><canvas id="networthChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ═══════════ TAX CALCULATOR ═══════════ -->
+    <section class="tab-section" id="tab-tax">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Tax Calculator</h1>
+          <p class="page-sub">FY 2024-25 — Compare Old vs New Tax Regime</p>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Income Details</h2></div>
+          <div class="form-group"><label>Gross Annual Salary (₹)</label><input type="number" id="tax-salary" placeholder="e.g. 800000" oninput="calculateTax()"/></div>
+          <div class="form-group"><label>Other Income (₹)</label><input type="number" id="tax-other" placeholder="e.g. 50000" oninput="calculateTax()"/></div>
+          <div class="card-header" style="margin-top:1rem"><h2 class="card-title">Deductions (Old Regime)</h2></div>
+          <div class="form-group"><label>Section 80C — PPF, ELSS, LIC (max ₹1,50,000)</label><input type="number" id="tax-80c" placeholder="e.g. 150000" oninput="calculateTax()"/></div>
+          <div class="form-group"><label>Section 80D — Health Insurance (max ₹25,000)</label><input type="number" id="tax-80d" placeholder="e.g. 25000" oninput="calculateTax()"/></div>
+          <div class="form-group"><label>Section 80D — Parents Health Insurance (max ₹50,000)</label><input type="number" id="tax-80d-parents" placeholder="e.g. 25000" oninput="calculateTax()"/></div>
+          <div class="form-group"><label>HRA Exemption (₹)</label><input type="number" id="tax-hra" placeholder="e.g. 120000" oninput="calculateTax()"/></div>
+          <div class="form-group"><label>Home Loan Interest — Section 24b (max ₹2,00,000)</label><input type="number" id="tax-homeloan" placeholder="e.g. 150000" oninput="calculateTax()"/></div>
+          <div class="form-group"><label>NPS — Section 80CCD(1B) (max ₹50,000)</label><input type="number" id="tax-nps" placeholder="e.g. 50000" oninput="calculateTax()"/></div>
+        </div>
+
+        <div>
+          <div class="glass-card">
+            <div class="card-header"><h2 class="card-title">Tax Comparison</h2></div>
+            <div id="tax-results"><p class="empty-hint">Enter your salary above to see results.</p></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-header"><h2 class="card-title">Tax Saving Tips</h2></div>
+            <div id="tax-tips"><p class="empty-hint">Tips will appear after calculation.</p></div>
+          </div>
+          <div class="glass-card">
+            <div class="card-header"><h2 class="card-title">Old vs New Regime</h2></div>
+            <div style="position:relative;height:220px;"><canvas id="taxChart"></canvas></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ TRENDS ═══════════ -->
+    <section class="tab-section" id="tab-trends">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Monthly Trends</h1>
+          <p class="page-sub">6-month spending and savings history</p>
+        </div>
+        <button class="btn btn-primary" onclick="downloadPDF()">⬇ Download PDF Report</button>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card accent-blue">
+          <div class="metric-top"><span class="metric-label">Avg Monthly Income</span><span class="metric-icon">↑</span></div>
+          <div class="metric-value" id="trend-avg-income">₹0</div>
+          <div class="metric-foot">Last 6 months</div>
+        </div>
+        <div class="metric-card accent-red">
+          <div class="metric-top"><span class="metric-label">Avg Monthly Expenses</span><span class="metric-icon">↓</span></div>
+          <div class="metric-value" id="trend-avg-exp">₹0</div>
+          <div class="metric-foot">Last 6 months</div>
+        </div>
+        <div class="metric-card accent-green">
+          <div class="metric-top"><span class="metric-label">Avg Monthly Savings</span><span class="metric-icon">★</span></div>
+          <div class="metric-value" id="trend-avg-save">₹0</div>
+          <div class="metric-foot">Last 6 months</div>
+        </div>
+        <div class="metric-card accent-amber">
+          <div class="metric-top"><span class="metric-label">Best Savings Month</span><span class="metric-icon">🏆</span></div>
+          <div class="metric-value" id="trend-best">—</div>
+          <div class="metric-foot" id="trend-best-amt"></div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">Income vs Expenses vs Savings</h2></div>
+        <div style="position:relative;height:300px;"><canvas id="trendsChart"></canvas></div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">Monthly Savings Rate</h2></div>
+        <div style="position:relative;height:220px;"><canvas id="savingsRateChart"></canvas></div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════ STOCKS & MF ═══════════ -->
+    <section class="tab-section" id="tab-stocks">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Stocks & Mutual Funds</h1>
+          <p class="page-sub">Track your portfolio with live NSE/BSE prices</p>
+        </div>
+        <button class="btn btn-primary" onclick="loadStocks()">↻ Refresh Prices</button>
+      </div>
+
+      <div class="metrics-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="metric-card accent-blue">
+          <div class="metric-top"><span class="metric-label">Total Invested</span><span class="metric-icon">₹</span></div>
+          <div class="metric-value" id="stock-invested">₹0</div>
+          <div class="metric-foot">Cost basis</div>
+        </div>
+        <div class="metric-card accent-green">
+          <div class="metric-top"><span class="metric-label">Current Value</span><span class="metric-icon">↑</span></div>
+          <div class="metric-value" id="stock-current">₹0</div>
+          <div class="metric-foot">Live prices</div>
+        </div>
+        <div class="metric-card accent-amber">
+          <div class="metric-top"><span class="metric-label">Total Gain/Loss</span><span class="metric-icon">%</span></div>
+          <div class="metric-value" id="stock-gain">₹0</div>
+          <div class="metric-foot" id="stock-gain-pct">0%</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Add Holding</h2></div>
+          <div class="form-group">
+            <label>Symbol (add .NS for NSE, .BO for BSE)</label>
+            <input type="text" id="stock-symbol" placeholder="e.g. TCS.NS, RELIANCE.NS, NIFTYBEES.NS"/>
+          </div>
+          <div class="form-group">
+            <label>Quantity / Units</label>
+            <input type="number" id="stock-qty" placeholder="e.g. 10"/>
+          </div>
+          <div class="form-group">
+            <label>Buy Price (₹)</label>
+            <input type="number" id="stock-buy" placeholder="e.g. 3500"/>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select id="stock-type">
+              <option value="stock">Stock</option>
+              <option value="mf">Mutual Fund / ETF</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addStockHolding()">+ Add to Portfolio</button>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header"><h2 class="card-title">Market Watch — Popular Stocks</h2></div>
+          <div id="market-watch"><p class="empty-hint">Loading market data...</p></div>
+        </div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">My Portfolio</h2></div>
+        <div class="expense-table-wrap">
+          <table class="expense-table">
+            <thead>
+              <tr>
+                <th>Symbol</th><th>Name</th><th>Qty</th>
+                <th>Buy Price</th><th>Current</th><th>Invested</th>
+                <th>Value</th><th>Gain/Loss</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="portfolio-tbody">
+              <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem">No holdings yet. Add your first stock above!</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ═══════════ MARKETS ═══════════ -->
+    <section class="tab-section" id="tab-stocks">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Market Tracker</h1>
+          <p class="page-sub">Live Indian stocks, ETFs and top SIP fund recommendations</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="stock-search" placeholder="Search symbol e.g. RELIANCE.NS" style="width:220px"/>
+          <button class="btn btn-primary" onclick="searchStock()">Search</button>
+        </div>
+      </div>
+
+      <div id="search-result" style="margin-bottom:1rem"></div>
+
+      <div class="glass-card">
+        <div class="card-header" style="display:flex;justify-content:space-between;align-items:center">
+          <h2 class="card-title">Live Prices — Top Indian Stocks & ETFs</h2>
+          <button class="btn" style="font-size:12px;padding:5px 12px" onclick="loadStocks()">↻ Refresh</button>
+        </div>
+        <div id="stocks-list"><p class="empty-hint">Loading live prices...</p></div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">Top SIP Fund Recommendations</h2></div>
+        <div id="sip-funds-list"><p class="empty-hint">Loading fund recommendations...</p></div>
+      </div>
+
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">📧 Email Reports</h2></div>
+        <p style="font-size:14px;color:var(--text-muted);margin-bottom:1rem">Send your monthly financial report to your registered email.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="sendEmailReport()">📨 Send Monthly Report</button>
+          <button class="btn" onclick="sendTestEmail()">✉ Send Test Email</button>
+        </div>
+        <div id="email-status" style="margin-top:1rem;font-size:14px"></div>
+        <div style="margin-top:1rem;padding:1rem;background:var(--surface);border-radius:var(--radius-sm);font-size:13px;color:var(--text-muted)">
+          <strong style="color:var(--text)">Setup required:</strong> Add EMAIL_USER and EMAIL_PASS to your backend <code>.env</code> file.
+          Use a Gmail App Password (not your real password). 
+          <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color:var(--accent)">Get App Password →</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/advisor.js"></script>
+  <script src="js/features.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
