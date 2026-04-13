@@ -213,6 +213,7 @@ async function loadStocks() {
   el.innerHTML = '<p class="empty-hint">Loading prices...</p>';
   try {
     const data = await StocksAPI.getPopular();
+    window._stocksData = data.stocks;
     el.innerHTML = data.stocks.map(s => {
       const up   = s.change_pct >= 0;
       const abbr = s.symbol.slice(0, 4);
@@ -346,3 +347,135 @@ async function downloadPDF() {
     URL.revokeObjectURL(link.href);
   } catch (err) { alert('PDF download failed: ' + err.message); }
 }
+
+
+// ══════════════════════════════════════════════════════════════════
+//  PORTFOLIO TRACKER (localStorage based)
+// ══════════════════════════════════════════════════════════════════
+function getPortfolio() {
+  try { return JSON.parse(localStorage.getItem('fintech_portfolio') || '[]'); } catch { return []; }
+}
+
+function savePortfolio(p) {
+  localStorage.setItem('fintech_portfolio', JSON.stringify(p));
+}
+
+function addToPortfolio() {
+  const symbol = document.getElementById('port-symbol').value.trim();
+  const qty    = +document.getElementById('port-qty').value    || 0;
+  const buy    = +document.getElementById('port-buy').value    || 0;
+  const type   = document.getElementById('port-type').value;
+
+  if (!symbol) { alert('Please enter a stock name or symbol'); return; }
+  if (!qty)    { alert('Please enter quantity'); return; }
+  if (!buy)    { alert('Please enter buy price'); return; }
+
+  const portfolio = getPortfolio();
+
+  // Check if already exists — update quantity
+  const existing = portfolio.find(p => p.symbol.toUpperCase() === symbol.toUpperCase());
+  if (existing) {
+    const totalInvested = existing.qty * existing.buy + qty * buy;
+    const totalQty      = existing.qty + qty;
+    existing.buy = Math.round(totalInvested / totalQty);
+    existing.qty = totalQty;
+  } else {
+    portfolio.push({ symbol: symbol.toUpperCase(), qty, buy, type, added: new Date().toLocaleDateString('en-IN') });
+  }
+
+  savePortfolio(portfolio);
+  document.getElementById('port-symbol').value = '';
+  document.getElementById('port-qty').value    = '';
+  document.getElementById('port-buy').value    = '';
+  renderPortfolio();
+}
+
+function removeFromPortfolio(index) {
+  const portfolio = getPortfolio();
+  portfolio.splice(index, 1);
+  savePortfolio(portfolio);
+  renderPortfolio();
+}
+
+function renderPortfolio() {
+  const portfolio = getPortfolio();
+  const listEl    = document.getElementById('portfolio-list');
+  const summaryEl = document.getElementById('portfolio-summary');
+  if (!listEl) return;
+
+  if (!portfolio.length) {
+    listEl.innerHTML    = '<p class="empty-hint">No holdings yet. Add your first stock above!</p>';
+    summaryEl.innerHTML = '';
+    return;
+  }
+
+  // Get current prices from popular stocks data
+  let totalInvested = 0;
+  let totalCurrent  = 0;
+
+  listEl.innerHTML = portfolio.map((p, i) => {
+    // Find matching stock for current price
+    const match = window._stocksData ? window._stocksData.find(s =>
+      s.symbol.toUpperCase() === p.symbol.toUpperCase() ||
+      s.name.toUpperCase().includes(p.symbol.toUpperCase())
+    ) : null;
+
+    const currentPrice = match ? match.price : p.buy;
+    const invested     = p.qty * p.buy;
+    const current      = p.qty * currentPrice;
+    const gain         = current - invested;
+    const gainPct      = ((gain / invested) * 100).toFixed(2);
+    const isGain       = gain >= 0;
+
+    totalInvested += invested;
+    totalCurrent  += current;
+
+    return '<div class="stock-row">' +
+      '<div class="stock-icon" style="font-size:10px">' + p.symbol.slice(0,4) + '</div>' +
+      '<div class="stock-info">' +
+        '<div class="stock-name">' + p.symbol + ' <span style="font-size:11px;color:var(--text-muted)">(' + p.type + ')</span></div>' +
+        '<div class="stock-symbol">Qty: ' + p.qty + ' · Avg Buy: ₹' + p.buy.toLocaleString('en-IN') + ' · Added: ' + p.added + '</div>' +
+      '</div>' +
+      '<div style="text-align:right;margin-right:10px">' +
+        '<div style="font-size:14px;font-weight:600">₹' + current.toLocaleString('en-IN', {maximumFractionDigits:0}) + '</div>' +
+        '<span class="stock-change ' + (isGain ? 'up' : 'down') + '">' + (isGain ? '+' : '') + gain.toLocaleFixed(0) + ' (' + gainPct + '%)</span>' +
+      '</div>' +
+      '<button class="btn btn-danger" style="padding:5px 10px;font-size:12px;flex-shrink:0" onclick="removeFromPortfolio(' + i + ')">✕</button>' +
+    '</div>';
+  }).join('');
+
+  // Summary
+  const totalGain    = totalCurrent - totalInvested;
+  const totalGainPct = totalInvested ? ((totalGain / totalInvested) * 100).toFixed(2) : 0;
+  const isGain       = totalGain >= 0;
+
+  summaryEl.innerHTML =
+    '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:1rem">' +
+      '<div class="metric-card accent-blue" style="margin:0">' +
+        '<div class="metric-label">Total Invested</div>' +
+        '<div class="metric-value" style="font-size:20px">₹' + totalInvested.toLocaleString('en-IN', {maximumFractionDigits:0}) + '</div>' +
+      '</div>' +
+      '<div class="metric-card accent-green" style="margin:0">' +
+        '<div class="metric-label">Current Value</div>' +
+        '<div class="metric-value" style="font-size:20px">₹' + totalCurrent.toLocaleString('en-IN', {maximumFractionDigits:0}) + '</div>' +
+      '</div>' +
+      '<div class="metric-card ' + (isGain ? 'accent-green' : 'accent-red') + '" style="margin:0">' +
+        '<div class="metric-label">Total Gain/Loss</div>' +
+        '<div class="metric-value" style="font-size:20px;color:' + (isGain ? 'var(--green)' : 'var(--red)') + '">' +
+          (isGain ? '+' : '') + '₹' + Math.abs(totalGain).toLocaleString('en-IN', {maximumFractionDigits:0}) + '</div>' +
+        '<div class="metric-foot">' + totalGainPct + '%</div>' +
+      '</div>' +
+    '</div>';
+}
+
+// Fix toLocaleFixed for numbers
+Number.prototype.toLocaleFixed = function(digits) {
+  return this.toLocaleString('en-IN', {maximumFractionDigits: digits || 0, minimumFractionDigits: digits || 0});
+};
+
+// Load portfolio when stocks tab opens
+const _origLoadStocks = loadStocks;
+loadStocks = async function() {
+  await _origLoadStocks();
+  renderPortfolio();
+};

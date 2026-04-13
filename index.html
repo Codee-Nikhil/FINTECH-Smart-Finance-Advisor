@@ -573,83 +573,7 @@
     </section>
 
 
-    <!-- ═══════════ STOCKS & MF ═══════════ -->
-    <section class="tab-section" id="tab-stocks">
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">Stocks & Mutual Funds</h1>
-          <p class="page-sub">Track your portfolio with live NSE/BSE prices</p>
-        </div>
-        <button class="btn btn-primary" onclick="loadStocks()">↻ Refresh Prices</button>
-      </div>
 
-      <div class="metrics-grid" style="grid-template-columns:repeat(3,1fr)">
-        <div class="metric-card accent-blue">
-          <div class="metric-top"><span class="metric-label">Total Invested</span><span class="metric-icon">₹</span></div>
-          <div class="metric-value" id="stock-invested">₹0</div>
-          <div class="metric-foot">Cost basis</div>
-        </div>
-        <div class="metric-card accent-green">
-          <div class="metric-top"><span class="metric-label">Current Value</span><span class="metric-icon">↑</span></div>
-          <div class="metric-value" id="stock-current">₹0</div>
-          <div class="metric-foot">Live prices</div>
-        </div>
-        <div class="metric-card accent-amber">
-          <div class="metric-top"><span class="metric-label">Total Gain/Loss</span><span class="metric-icon">%</span></div>
-          <div class="metric-value" id="stock-gain">₹0</div>
-          <div class="metric-foot" id="stock-gain-pct">0%</div>
-        </div>
-      </div>
-
-      <div class="two-col">
-        <div class="glass-card">
-          <div class="card-header"><h2 class="card-title">Add Holding</h2></div>
-          <div class="form-group">
-            <label>Symbol (add .NS for NSE, .BO for BSE)</label>
-            <input type="text" id="stock-symbol" placeholder="e.g. TCS.NS, RELIANCE.NS, NIFTYBEES.NS"/>
-          </div>
-          <div class="form-group">
-            <label>Quantity / Units</label>
-            <input type="number" id="stock-qty" placeholder="e.g. 10"/>
-          </div>
-          <div class="form-group">
-            <label>Buy Price (₹)</label>
-            <input type="number" id="stock-buy" placeholder="e.g. 3500"/>
-          </div>
-          <div class="form-group">
-            <label>Type</label>
-            <select id="stock-type">
-              <option value="stock">Stock</option>
-              <option value="mf">Mutual Fund / ETF</option>
-            </select>
-          </div>
-          <button class="btn btn-primary" onclick="addStockHolding()">+ Add to Portfolio</button>
-        </div>
-
-        <div class="glass-card">
-          <div class="card-header"><h2 class="card-title">Market Watch — Popular Stocks</h2></div>
-          <div id="market-watch"><p class="empty-hint">Loading market data...</p></div>
-        </div>
-      </div>
-
-      <div class="glass-card">
-        <div class="card-header"><h2 class="card-title">My Portfolio</h2></div>
-        <div class="expense-table-wrap">
-          <table class="expense-table">
-            <thead>
-              <tr>
-                <th>Symbol</th><th>Name</th><th>Qty</th>
-                <th>Buy Price</th><th>Current</th><th>Invested</th>
-                <th>Value</th><th>Gain/Loss</th><th></th>
-              </tr>
-            </thead>
-            <tbody id="portfolio-tbody">
-              <tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem">No holdings yet. Add your first stock above!</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
 
 
     <!-- ═══════════ MARKETS ═══════════ -->
@@ -684,6 +608,26 @@
       <div class="glass-card">
         <div class="card-header"><h2 class="card-title">Top Indian Stocks & ETFs</h2></div>
         <div id="stocks-list"><p class="empty-hint">Loading prices...</p></div>
+      </div>
+
+      <!-- Portfolio -->
+      <div class="glass-card">
+        <div class="card-header"><h2 class="card-title">My Portfolio</h2></div>
+        <div class="two-col" style="margin-bottom:1rem">
+          <div>
+            <div class="form-group"><label>Stock Name or Symbol</label><input type="text" id="port-symbol" placeholder="e.g. TCS or RELIANCE"/></div>
+            <div class="form-group"><label>Quantity</label><input type="number" id="port-qty" placeholder="e.g. 10"/></div>
+          </div>
+          <div>
+            <div class="form-group"><label>Buy Price (₹)</label><input type="number" id="port-buy" placeholder="e.g. 3500"/></div>
+            <div class="form-group"><label>Type</label>
+              <select id="port-type"><option value="Stock">Stock</option><option value="ETF">ETF</option><option value="MF">Mutual Fund</option></select>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addToPortfolio()">+ Add to Portfolio</button>
+        <div id="portfolio-list" style="margin-top:1.5rem"></div>
+        <div id="portfolio-summary" style="margin-top:1rem"></div>
       </div>
 
       <!-- SIP Funds -->

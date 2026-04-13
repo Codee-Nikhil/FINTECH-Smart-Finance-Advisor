@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       switchTab(tab);
       if (tab === 'networth') loadNetWorth();
       if (tab === 'trends')   loadTrends();
-      if (tab === 'stocks')   { loadStocks(); loadSIPFunds(); }
+      if (tab === 'stocks')   { loadStocks(); loadSIPFunds(); renderPortfolio(); }
       if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
     });
   });
