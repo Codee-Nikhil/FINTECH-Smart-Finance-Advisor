@@ -1,7 +1,7 @@
 // ===== API SERVICE =====
 const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://127.0.0.1:5000/api'
-  : 'https://YOUR-APP-NAME.up.railway.app/api';
+ : 'https://fintech-smart-finance-advisor-production.up.railway.app/api';
 
 function getToken()   { return localStorage.getItem('fintech_token'); }
 function setToken(t)  { localStorage.setItem('fintech_token', t); }
