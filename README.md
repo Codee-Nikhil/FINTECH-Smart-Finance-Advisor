@@ -185,7 +185,7 @@ git push -u origin main
 
 ## 🎓 Academic Info
 
-- **Project:** Final Year Project — B.Tech / BCA / MCA
+- **Project:** Final Year Project — B.Tech 
 - **Domain:** FinTech, Full Stack Web Dev, AI Integration
 - **Stack:** Python Flask, SQLAlchemy, JWT, HTML/CSS/JS, Claude AI
 
@@ -193,7 +193,7 @@ git push -u origin main
 
 ## 👨‍💻 Author
 
-**[Your Name]** · [Your College] · [Branch] · [Roll No]
+Nikhil Tiwari 
 
 > Built with ❤️ for India | Python Flask + Claude AI (Anthropic)
 
